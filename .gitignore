@@ -1,0 +1,34 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+.DS_Store
+
+# all pdf files
+*.pdf
+
+# simulation results dir
+trans_flow/*
+trans_flow_100/*
+trans_flow_v3/*
+
+# any (intermediate) data save
+*.RData
+*.rds
+*.csv
+*.txt
+*.xlsx
+
+# the python dir and other python files
+*.py
+HIV_transmission_flow
+
+# exploratory R files
+*.rmd
+*.html
+
+# other folders
+fusion2017_spatstat_appendixB/*
+
+
