@@ -22,7 +22,8 @@ trans_flow_v3/*
 
 # the python dir and other python files
 *.py
-HIV_transmission_flow
+HIV_transmission_flow/*
+_pycache_/*
 
 # exploratory R files
 *.rmd
