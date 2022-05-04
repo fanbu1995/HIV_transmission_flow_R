@@ -33,10 +33,10 @@ scatter1 = ggplot(dat, aes(x=MALE_AGE_AT_MID,
   scale_y_continuous(limits = c(15,50)) +
   scale_color_manual(values = c('grey70','grey30')) +
   labs(x='male age (mid-observation)', y = 'female age (mid-observation)') +
-  geom_text(x=15, y=48, label = sprintf('previous: N=%s\nnow: N=%s', 
+  geom_text(x=15, y=47, label = sprintf('previous: N=%s\nnow: N=%s', 
                                        sum(dat$paper=='Xi'),
                                        nrow(dat)),
-            hjust = 0)+
+            hjust = 0, size = 5)+
   theme_bw(base_size = 14) +
   theme(legend.position = 'none')
 
@@ -68,9 +68,10 @@ scatter1 = ggplot(dat, aes(x=MALE_AGE_AT_MID,
 dat = dat %>% 
   mutate(direction_type = case_when(POSTERIOR_SCORE_MF >= 0.66 ~ 'likely M->F',
                                     POSTERIOR_SCORE_MF <= 0.33 ~ 'likely F->M',
-                                    TRUE ~ 'none'))
+                                    TRUE ~ 'uncertatin'))
 hist_link = ggplot(dat, aes(x=POSTERIOR_SCORE_LINKED)) +
   geom_histogram(color = 'gray20', fill = 'gray90', bins = 25) +
+  geom_vline(xintercept = 0.6, linetype = 2, size = 1.5)+
   scale_x_continuous(limits = c(0,1),
                      labels = scales::percent)+
   scale_y_continuous(limits = c(0,50)) +
@@ -292,13 +293,14 @@ preMF  = ggplot(dat2Xi %>%
   geom_point(color = "gray30", size = 1.8) +
   scale_x_continuous(limits = c(15,50)) +
   scale_y_continuous(limits = c(15,50)) +
-  geom_text(x=18, y=48, label = sprintf('N=%s', sum(dat2Xi$direction=='M->F')))+
+  geom_text(x=20, y=48, label = sprintf('N=%s', sum(dat2Xi$direction=='M->F')),
+            size = 12)+
   labs(x='male age', y = 'female age') +
   theme_bw(base_size = 14)
 
 
 ## discretized tiles
-get_age_bin <- function(x, breaks = seq(15,50,by=5)){
+get_age_bin <- function(x, breaks = seq(15,50,by=1)){
   num_bin = length(breaks) - 1
   res = character(length(x))
   for(i in 1:num_bin){
@@ -322,12 +324,14 @@ preMFtiles = ggplot(age_group_counts,
                         y=female_age_group,
                         fill = num_points)) +
   geom_tile() +
-  scale_fill_gradient(low = 'white', high = wes_palette("Darjeeling2")[2]) +
+  scale_fill_gradient(low = alpha(wes_palette("Moonrise3")[1], 0.4), 
+                      high = wes_palette("Darjeeling2")[2]) +
   labs(x='male age', y = 'female age') +
   theme_bw(base_size = 14) +
   theme(legend.position = 'none',
         panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
 
@@ -346,7 +350,7 @@ allMF = ggplot(dat2,
   #                       limits = c(0,1.0),
   #                       breaks = c(0,0.25,0.5,0.75,1.0),
   #                       labels = scales::percent(c(0,0.25,0.5,0.75,1.0)))+
-  geom_text(x=18, y=48, label = sprintf('N=%s', nrow(dat2)))+
+  geom_text(x=20, y=48, label = sprintf('N=%s', nrow(dat2)), size = 12)+
   labs(x='male age', y = 'female age', 
        color='posterior\nM->F\nprobability') +
   theme_bw(base_size = 14)+
@@ -360,7 +364,8 @@ allMFdens = ggplot(dat2 %>% filter(freq_MF > 0.6),
                   aes(fill = after_stat(level)), 
                   colour = "gray60",bins = 10) +
   # scale_fill_distiller(palette = "Blues", direction = 1) +
-  scale_fill_gradient(low = 'white', high = wes_palette("Darjeeling2")[2]) +
+  scale_fill_gradient(low = 'white', 
+                      high = wes_palette("Darjeeling2")[2]) +
   scale_x_continuous(limits = c(15,50)) +
   scale_y_continuous(limits = c(15,50)) +
   #geom_text(x=18, y=48, label = sprintf('N=%s', nrow(dat2)))+

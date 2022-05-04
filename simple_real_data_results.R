@@ -60,11 +60,15 @@ ggplot(probs_summary, aes(x=prob, y=avg)) +
 
 
 # 3. source age distribution (marginal on male or female) ------
+# 05/03 update: add age distribution from the fixed threshold analysis as well
 males = read_csv('real_data_male_source_age_samples.csv')
 females = read_csv('real_data_female_source_age_samples.csv')
 
+malesFixed = read_csv('fixedThres_data_male_source_age_samples.csv')
+femalesFixed = read_csv('fixedThres_data_female_source_age_samples.csv')
+
 burn = 1000
-thin = 10
+thin = 20
 maxIter = max(males$iter)
 
 sel = seq(from=burn, to = maxIter, by=thin)
@@ -72,32 +76,52 @@ sel = seq(from=burn, to = maxIter, by=thin)
 males = males %>% filter(iter %in% sel)
 females = females %>% filter(iter %in% sel)
 
+xlims = c(15,50)
+
 ## male source age
 hdi50male = hdi(males$sourceAge, ci=0.5)
+hdi50maleFixed = hdi(malesFixed$sourceAge, ci=0.5)
+
 ggplot(males, aes(x=sourceAge)) +
-  geom_density(aes(group=iter), 
+  geom_density(aes(group=iter),
                color = alpha(wes_palette("Moonrise3")[1],0.2))+
   stat_density(bw=2,color = wes_palette("Darjeeling2")[2], 
                geom='line', position='identity', size = 1.5)+
+  stat_density(data=malesFixed, aes(x=sourceAge), 
+               bw=2, color='grey30', geom='line', linetype = 2,
+               position='identity', size = 1.5) +
   geom_text(x=40, y = 0.06,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50male$CI_low, hdi50male$CI_high),
+            size = 6, color = wes_palette("Darjeeling2")[2])+
+  geom_text(x=40, y = 0.056,
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50maleFixed$CI_low, hdi50maleFixed$CI_high),
             size = 6)+
+  scale_x_continuous(limits = xlims)+
   labs(x='male source age', y='')+
   theme_bw(base_size = 14)
 
 
 ## female source age
 hdi50female = hdi(females$sourceAge, ci=0.5)
+hdi50femaleFixed = hdi(femalesFixed$sourceAge, ci=0.5)
 ggplot(females, aes(x=sourceAge)) +
   geom_density(aes(group=iter), 
                color = alpha(wes_palette("Moonrise3")[2],0.2))+
   stat_density(bw=2.2,color = wes_palette("GrandBudapest1")[2], 
                geom='line', position='identity', size = 1.5)+
+  stat_density(data=femalesFixed, aes(x=sourceAge), 
+               bw=2, color='grey30', geom='line', linetype = 2,
+               position='identity', size = 1.5) +
   geom_text(x=40, y = 0.06,
-           label = sprintf('50%% HDI:[%.1f, %.1f]', 
-                           hdi50female$CI_low, hdi50female$CI_high),
-           size = 6)+
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50female$CI_low, hdi50female$CI_high),
+            size = 6, color = wes_palette("GrandBudapest1")[2])+
+  geom_text(x=40, y = 0.056,
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50femaleFixed$CI_low, hdi50femaleFixed$CI_high),
+            size = 6)+
   labs(x='female source age', y='')+
   theme_bw(base_size = 14)
 
@@ -107,22 +131,36 @@ ggplot(females, aes(x=sourceAge)) +
 source.males = read_csv('real_data_young_women_infection_male_source_age_samples.csv')
 rec.males = read_csv('real_data_young_female_recipient_age_samples.csv')
 
+source.males.fixed = read_csv('fixedThres_data_young_women_infection_male_source_age_samples.csv')
+rec.males.fixed = read_csv('fixedThres_data_young_female_recipient_age_samples.csv')
+
 source.males = source.males %>% filter(iter %in% sel)
 rec.males = rec.males %>% filter(iter %in% sel)
+
+source.males.fixed = source.males.fixed %>% filter(iter %in% sel)
+rec.males.fixed = rec.males.fixed %>% filter(iter %in% sel)
 
 ylims = c(0, 0.13)
 xlims = c(15,50)
 
 ## male source age
 hdi50male = hdi(source.males$sourceAge, ci=0.5)
+hdi50male.fixed = hdi(source.males.fixed$sourceAge, ci=0.5)
 ggplot(source.males, aes(x=sourceAge)) +
   geom_density(aes(group=iter), 
                color = alpha(wes_palette("Moonrise3")[1],0.2))+
   stat_density(bw=2,color = wes_palette("Darjeeling2")[2], 
                geom='line', position='identity', size = 1.5)+
+  stat_density(data=source.males.fixed, aes(x=sourceAge), 
+               bw=2, color='grey30', geom='line', linetype = 2,
+               position='identity', size = 1.5) +
   geom_text(x=40, y = 0.10,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50male$CI_low, hdi50male$CI_high),
+            size = 6, color = wes_palette("Darjeeling2")[2])+
+  geom_text(x=40, y = 0.092,
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50male.fixed$CI_low, hdi50male.fixed$CI_high),
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
@@ -131,14 +169,22 @@ ggplot(source.males, aes(x=sourceAge)) +
 
 ## male recipient age
 hdi50male = hdi(rec.males$sourceAge, ci=0.5)
+hdi50male.fixed = hdi(rec.males.fixed$sourceAge, ci=0.5)
 ggplot(rec.males, aes(x=sourceAge)) +
   geom_density(aes(group=iter), 
                color = alpha(wes_palette("Moonrise3")[2],0.2))+
   stat_density(bw=1.8,color = wes_palette("GrandBudapest1")[2], 
                geom='line', position='identity', size = 1.5)+
+  stat_density(data=rec.males.fixed, aes(x=sourceAge), 
+               bw=1.8, color='grey30', geom='line', linetype = 2,
+               position='identity', size = 1.5) +
   geom_text(x=40, y = 0.10,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50male$CI_low, hdi50male$CI_high),
+            size = 6, color = wes_palette("GrandBudapest1")[2])+
+  geom_text(x=40, y = 0.092,
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50male.fixed$CI_low, hdi50male.fixed$CI_high),
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
@@ -147,25 +193,39 @@ ggplot(rec.males, aes(x=sourceAge)) +
   
   
 ## e.g. II: young men (15-25)
-source.females = read_csv('real_data_female_source_age_samples.csv')
+source.females = read_csv('real_data_young_men_infection_female_source_age_samples.csv')
 rec.females = read_csv('real_data_young_male_recipient_age_samples.csv')
 
 source.females = source.females %>% filter(iter %in% sel)
 rec.females = rec.females %>% filter(iter %in% sel)
+
+source.females.fixed = read_csv('fixedThres_data_young_men_infection_female_source_age_samples.csv')
+rec.females.fixed = read_csv('fixedThres_data_young_male_recipient_age_samples.csv')
+
+source.females.fixed = source.females.fixed %>% filter(iter %in% sel)
+rec.females.fixed = rec.females.fixed %>% filter(iter %in% sel)
 
 ylims = c(0, 0.13)
 xlims = c(15,50)
 
 ## female source age
 hdi50female = hdi(source.females$sourceAge, ci=0.5)
+hdi50femaleFixed = hdi(source.females.fixed$sourceAge, ci=0.5)
 ggplot(source.females, aes(x=sourceAge)) +
   geom_density(aes(group=iter), 
                color = alpha(wes_palette("Moonrise3")[2],0.2))+
   stat_density(bw=2.2,color = wes_palette("GrandBudapest1")[2], 
                geom='line', position='identity', size = 1.5)+
+  stat_density(data=source.females.fixed, aes(x=sourceAge), 
+               bw=2.2, color='grey30', geom='line', linetype = 2,
+               position='identity', size = 1.5) +
   geom_text(x=40, y = 0.10,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50female$CI_low, hdi50female$CI_high),
+            size = 6, color = wes_palette("GrandBudapest1")[2])+
+  geom_text(x=40, y = 0.092,
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50femaleFixed$CI_low, hdi50femaleFixed$CI_high),
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
@@ -174,14 +234,22 @@ ggplot(source.females, aes(x=sourceAge)) +
 
 ## female recipient age
 hdi50female = hdi(rec.females$sourceAge, ci=0.5)
+hdi50femaleFixed = hdi(rec.females.fixed$sourceAge, ci=0.5)
 ggplot(rec.females, aes(x=sourceAge)) +
   geom_density(aes(group=iter), 
                color = alpha(wes_palette("Moonrise3")[1],0.2))+
   stat_density(bw=2,color = wes_palette("Darjeeling2")[2], 
                geom='line', position='identity', size = 1.5)+
+  stat_density(data=rec.females.fixed, aes(x=sourceAge), 
+               bw=2, color='grey30', geom='line', linetype = 2,
+               position='identity', size = 1.5) +
   geom_text(x=40, y = 0.10,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50female$CI_low, hdi50female$CI_high),
+            size = 6, color = wes_palette("Darjeeling2")[2])+
+  geom_text(x=40, y = 0.092,
+            label = sprintf('50%% HDI:[%.1f, %.1f]', 
+                            hdi50femaleFixed$CI_low, hdi50femaleFixed$CI_high),
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
