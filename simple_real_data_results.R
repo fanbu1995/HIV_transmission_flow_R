@@ -1,10 +1,15 @@
 # 05/02/2022 update
 # simple summary statistics on real analysis
 
+# 05/30/2022 update
+# add contour plots for MF/FM surface estimates
+
 # we have:
 # 1. proportions of each type
 # 2. spatial points colored with posterior type probs
 # 3. source age distribution (marginal on male or female)
+# 4. density of MF and FM surface, with contours for HDIs (in file "Density_2d_CIs.R")
+# 5. combine the colored points (with post.probs) with contour lines of HDIs (in "data_plot.R")
 
 
 library(tidyverse)
