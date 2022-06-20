@@ -4,6 +4,9 @@
 # 06/08/2022 update
 # combine points colored with post.probs WITH 2d density with HDI contour lines (from "Density_2d_CIs.R")
 
+# 06/20/2022 update
+# colored points with contour lines (on grayscale colors), for all 3 types
+
 library(tidyverse)
 library(ggplot2)
 library(patchwork)
@@ -491,6 +494,7 @@ ggarrange(ggarrange(preMFcolored,
 
 # 6. colored points with spatial density contour lines as well------
 ## (June 11 updated version)
+## (June 20 updates again)
 
 # 6.1 try the full model ones (only MF and FM directions) for proof of concept
 # below code is copied over from "Density_2d_CIs.R" file
@@ -514,7 +518,7 @@ library(ggnewscale)
 ## look at those probs levels
 probs = c(0.5, 0.8, 0.9)
 
-# 1. MF surface first...
+# (a). MF surface first...
 ## the data for MF densities from full model
 MFdens = read_csv('MF_density_MAP.csv')
 
@@ -545,6 +549,7 @@ MFlabels = MFdens %>%
   mutate(prob_label = sprintf('%.0f%%', prob * 100))
 
 # reproduce "allMFcolored" but with contour lines of HDIs
+(
 allMFcolored_contours = 
   ggplot() +
   geom_point(data = dat2, 
@@ -565,14 +570,15 @@ allMFcolored_contours =
   geom_text(data = MFlabels,
             aes(x=x, y=y, label = prob_label, col = level),
             size = 4) +
-  scale_color_gradientn(colors = pal)+
+  #scale_color_gradientn(colors = pal)+
+  scale_color_gradient(low = 'gray60', high = 'gray10')+
   labs(x='male age', y = 'female age', 
        color='posterior\nM->F\nprobability') +
   theme_bw(base_size = 14)+
   theme(legend.position = 'none')
+)
 
-
-# 2. FM surface
+# (b). FM surface
 FMdens = read_csv('FM_density_MAP.csv')
 
 pal <- wes_palette("Zissou1", 3, type = "continuous")
@@ -592,15 +598,15 @@ FMlabels = FMdens %>%
 
 ## also try another way of labelling... 
 ## this one does NOT work that well!!
-FMlabels = FMdens %>% 
-  full_join(FMlevels,by = character()) %>%
-  mutate(diffs = abs(density - level)) %>%
-  group_by(prob) %>%
-  arrange(diffs) %>%
-  slice(30) %>% # probably need to toggle this line and the next to find a good one
-  filter(x == max(x)) %>%
-  ungroup() %>%
-  mutate(prob_label = sprintf('%.0f%%', prob * 100))
+# FMlabels = FMdens %>% 
+#   full_join(FMlevels,by = character()) %>%
+#   mutate(diffs = abs(density - level)) %>%
+#   group_by(prob) %>%
+#   arrange(diffs) %>%
+#   slice(30) %>% # probably need to toggle this line and the next to find a good one
+#   filter(x == max(x)) %>%
+#   ungroup() %>%
+#   mutate(prob_label = sprintf('%.0f%%', prob * 100))
 
 
 ## reproduce "allFMcolored" but with contour lines of HDIs
@@ -624,11 +630,73 @@ allFMcolored_contours =
   geom_text(data = FMlabels,
             aes(x=x, y=y, label = prob_label, col = level),
             size = 4) +
-  scale_color_gradientn(colors = pal)+
+  #scale_color_gradientn(colors = pal)+
+  scale_color_gradient(low = 'gray60', high = 'gray10')+
   labs(x='male age', y = 'female age', 
        color='posterior\nF->M\nprobability') +
   theme_bw(base_size = 14)+
   theme(legend.position = 'none')
+)
+
+
+# (c). "none" surface
+nonedens = read_csv('0_density_MAP.csv')
+
+#pal <- wes_palette("Zissou1", 3, type = "continuous")
+
+nonelevels = nonedens %>% 
+  summarise(level = getLevel(x,y,density, prob = probs)) %>%
+  mutate(prob = probs)
+
+nonelabels = nonedens %>% 
+  full_join(nonelevels,by = character()) %>%
+  mutate(diffs = abs(density - level)) %>%
+  group_by(prob) %>%
+  filter(diffs == min(diffs)) %>%
+  slice(1) %>%
+  ungroup() %>%
+  mutate(prob_label = sprintf('%.0f%%', prob * 100))
+
+## also try another way of labelling... 
+## doesn't need this one here
+# nonelabels = nonedens %>% 
+#   full_join(nonelevels,by = character()) %>%
+#   mutate(diffs = abs(density - level)) %>%
+#   group_by(prob) %>%
+#   arrange(diffs) %>%
+#   slice(30) %>% # probably need to toggle this line and the next to find a good one
+#   filter(x == max(x)) %>%
+#   ungroup() %>%
+#   mutate(prob_label = sprintf('%.0f%%', prob * 100))
+
+
+## reproduce "all0colored" but with contour lines of HDIs
+(
+  allnonecolored_contours = 
+    ggplot() +
+    geom_point(data = dat2, aes(color = freq_0, 
+                                x=MALE_AGE_AT_MID,
+                                y= FEMALE_AGE_AT_MID), 
+               size = 1.8) +
+    scale_x_continuous(limits = c(15,50)) +
+    scale_y_continuous(limits = c(15,50)) +
+    scale_color_gradient(low = 'white', high='black')+
+    geom_text(data = dat2, aes(x=MALE_AGE_AT_MID,
+                               y= FEMALE_AGE_AT_MID), 
+              x=18, y=48, label = sprintf('N=%s', nrow(dat2)), size = 6)+
+    new_scale("color") +
+    geom_contour(data = nonedens,
+                 aes(x=x,y=y, z=density, col = ..level..),
+                 breaks = nonelevels$level) +
+    geom_text(data = nonelabels,
+              aes(x=x, y=y, label = prob_label, col = level),
+              size = 4) +
+    #scale_color_gradientn(colors = pal)+
+    scale_color_gradient(low = 'gray60', high = 'gray10')+
+    labs(x='male age', y = 'female age', 
+         color='posterior\nnone\nprobability') +
+    theme_bw(base_size = 14)+
+    theme(legend.position = 'none')
 )
 
 
@@ -685,7 +753,8 @@ preMFcolored  =
   geom_text(data = MFlabels,
             aes(x=x, y=y, label = prob_label, col = level),
             size = 4) +
-  scale_color_gradientn(colors = pal)+
+  #scale_color_gradientn(colors = pal)+
+  scale_color_gradient(low = 'gray60', high = 'gray10')+
   labs(x='male age', y = 'female age', title = 'M->F transmissions') +
   theme_bw(base_size = 14)+
   theme(legend.position = 'none',
@@ -745,7 +814,8 @@ FMlabels = FMdens %>%
     geom_text(data = FMlabels,
               aes(x=x, y=y, label = prob_label, col = level),
               size = 4) +
-    scale_color_gradientn(colors = pal)+
+    #scale_color_gradientn(colors = pal)+
+    scale_color_gradient(low = 'gray60', high = 'gray10')+
     labs(x='male age', y = 'female age', title = 'F->M transmissions') +
     theme_bw(base_size = 14)+
     theme(legend.position = 'none',
@@ -753,14 +823,87 @@ FMlabels = FMdens %>%
                                     size = 22))
 )
 
+## (c) none surface
+nonedens = read_csv('fixThres_0_density_MAP.csv')
 
-## put the four panels (colored points + density contour lines) together
+#pal <- wes_palette("Zissou1", 3, type = "continuous")
+
+nonelevels = nonedens %>% 
+  summarise(level = getLevel(x,y,density, prob = probs)) %>%
+  mutate(prob = probs)
+
+nonelabels = nonedens %>% 
+  full_join(nonelevels,by = character()) %>%
+  mutate(diffs = abs(density - level)) %>%
+  group_by(prob) %>%
+  filter(diffs == min(diffs)) %>%
+  slice(1) %>%
+  ungroup() %>%
+  mutate(prob_label = sprintf('%.0f%%', prob * 100))
+
+## also try another way of labelling... 
+## this one does NOT work that well!!
+# nonelabels = nonedens %>% 
+#   full_join(nonelevels,by = character()) %>%
+#   mutate(diffs = abs(density - level)) %>%
+#   group_by(prob) %>%
+#   arrange(diffs) %>%
+#   slice(30) %>% # probably need to toggle this line and the next to find a good one
+#   filter(x == max(x)) %>%
+#   ungroup() %>%
+#   mutate(prob_label = sprintf('%.0f%%', prob * 100))
+
+
+(
+  prenonecolored  = 
+    ggplot() +
+    geom_point(data = dat2fixed %>% 
+                 filter(direction == 'none'), 
+               aes(x=MALE_AGE_AT_MID,
+                   y= FEMALE_AGE_AT_MID),
+               color = 'gray50', size = 1.8) +
+    scale_x_continuous(limits = c(15,50)) +
+    scale_y_continuous(limits = c(15,50)) +
+    geom_text(data = dat2fixed, 
+              aes(x=MALE_AGE_AT_MID,
+                  y= FEMALE_AGE_AT_MID),x=18, y=48, 
+              label = sprintf('N=%s', sum(dat2fixed$direction=='none')), size = 6)+
+    geom_contour(data = nonedens,
+                 aes(x=x,y=y, z=density, col = ..level..),
+                 breaks = nonelevels$level) +
+    geom_text(data = nonelabels,
+              aes(x=x, y=y, label = prob_label, col = level),
+              size = 4) +
+    #scale_color_gradientn(colors = pal)+
+    scale_color_gradient(low = 'gray60', high = 'gray10')+
+    labs(x='male age', y = 'female age', title = 'No event/insufficient evidence') +
+    theme_bw(base_size = 14)+
+    theme(legend.position = 'none',
+          plot.title = element_text(hjust = 0.5,
+                                    size = 22))
+)
+
+
+## put all six panels (colored points + density contour lines) together
+# ggarrange(ggarrange(preMFcolored,
+#                     preFMcolored,
+#                     ncol=2),
+#           ggarrange(allMFcolored_contours, 
+#                     allFMcolored_contours,
+#                     ncol=2),
+#           nrow = 2,
+#           heights = c(3.2,3),
+#           labels = c('A','B'))
+
 ggarrange(ggarrange(preMFcolored,
                     preFMcolored,
-                    ncol=2),
+                    prenonecolored,
+                    ncol=3),
           ggarrange(allMFcolored_contours, 
                     allFMcolored_contours,
-                    ncol=2),
+                    allnonecolored_contours,
+                    ncol=3),
           nrow = 2,
           heights = c(3.2,3),
           labels = c('A','B'))
+
