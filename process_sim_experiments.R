@@ -10,7 +10,9 @@
 
 library(tidyverse)
 library(ggplot2)
-setwd("~/Documents/Research_and_References/HIV_transmission_flow/")
+library(ggpubr)
+#setwd("~/Documents/Research_and_References/HIV_transmission_flow/")
+setwd('~/Documents/Research/HIV_transmission_flow/')
 
 ## Posterior means
 # previous simulation with N=400
@@ -167,6 +169,10 @@ dev.off()
 pdf('joint_sim_plots_diff_Ns_median_update.pdf', 
     height = 6.7, width = 10)
 
+# 07/19/2022: put MF vs FM proportions on top row
+pdf('joint_sim_plots_diff_Ns_median_update2.pdf', 
+    height = 6.7, width = 10)
+
 
 ## 1. younger vs. older weights
 dummy = data.frame(scenario = rep(1:2, each = 2), yinter = c(0.62, 0.33, 0.33, 0.62))
@@ -222,13 +228,20 @@ ggplot(dat_prop) +
                scenario = sce.labs))
 
 
+# combined_figure = 
+# ggpubr::ggarrange(pweight+rremove("xlab")+rremove("x.text")+
+#                     rremove('x.ticks') + rremove('ylab'),
+#                   pprop+rremove('ylab'),
+#                   nrow = 2,
+#                   heights = c(5,6),
+#                   align = 'v')
 combined_figure = 
-ggpubr::ggarrange(pweight+rremove("xlab")+rremove("x.text")+
-                    rremove('x.ticks') + rremove('ylab'),
-                  pprop+rremove('ylab'),
-                  nrow = 2,
-                  heights = c(5,6),
-                  align = 'v')
+  ggpubr::ggarrange(pprop+rremove("xlab")+rremove("x.text")+
+                      rremove('x.ticks') + rremove('ylab'),
+                    pweight+rremove('ylab'),
+                    nrow = 2,
+                    heights = c(5,6),
+                    align = 'v')
 annotate_figure(combined_figure, 
                 left = grid::textGrob('estimated source proportions\n(posterior medians in 100 replicates)', 
                                       rot = 90, vjust = 0.5, 

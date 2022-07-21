@@ -562,7 +562,8 @@ allMFcolored_contours =
   geom_text(data = dat2, 
             aes(x=MALE_AGE_AT_MID,
                 y= FEMALE_AGE_AT_MID),
-            x=18, y=48, label = sprintf('N=%s', nrow(dat2)), size = 6)+
+            x=19, y=47,  
+            label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
   new_scale("color") +
   geom_contour(data = MFdens,
                aes(x=x,y=y, z=density, col = ..level..),
@@ -622,7 +623,8 @@ allFMcolored_contours =
   scale_color_gradient(low = 'white', high=wes_palette("GrandBudapest1")[2])+
   geom_text(data = dat2, aes(x=MALE_AGE_AT_MID,
                              y= FEMALE_AGE_AT_MID), 
-            x=18, y=48, label = sprintf('N=%s', nrow(dat2)), size = 6)+
+            x=19, y=47,  
+            label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
   new_scale("color") +
   geom_contour(data = FMdens,
                aes(x=x,y=y, z=density, col = ..level..),
@@ -640,7 +642,8 @@ allFMcolored_contours =
 
 
 # (c). "none" surface
-nonedens = read_csv('0_density_MAP.csv')
+#nonedens = read_csv('0_density_MAP.csv')
+nonedens = read_csv('0_density_Mean.csv')
 
 #pal <- wes_palette("Zissou1", 3, type = "continuous")
 
@@ -659,15 +662,15 @@ nonelabels = nonedens %>%
 
 ## also try another way of labelling... 
 ## doesn't need this one here
-# nonelabels = nonedens %>% 
-#   full_join(nonelevels,by = character()) %>%
-#   mutate(diffs = abs(density - level)) %>%
-#   group_by(prob) %>%
-#   arrange(diffs) %>%
-#   slice(30) %>% # probably need to toggle this line and the next to find a good one
-#   filter(x == max(x)) %>%
-#   ungroup() %>%
-#   mutate(prob_label = sprintf('%.0f%%', prob * 100))
+nonelabels = nonedens %>%
+  full_join(nonelevels,by = character()) %>%
+  mutate(diffs = abs(density - level)) %>%
+  group_by(prob) %>%
+  arrange(diffs) %>%
+  slice(10) %>% # probably need to toggle this line and the next to find a good one
+  filter(x == max(x)) %>%
+  ungroup() %>%
+  mutate(prob_label = sprintf('%.0f%%', prob * 100))
 
 
 ## reproduce "all0colored" but with contour lines of HDIs
@@ -683,7 +686,8 @@ nonelabels = nonedens %>%
     scale_color_gradient(low = 'white', high='black')+
     geom_text(data = dat2, aes(x=MALE_AGE_AT_MID,
                                y= FEMALE_AGE_AT_MID), 
-              x=18, y=48, label = sprintf('N=%s', nrow(dat2)), size = 6)+
+              x=19, y=47, 
+              label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
     new_scale("color") +
     geom_contour(data = nonedens,
                  aes(x=x,y=y, z=density, col = ..level..),
@@ -723,7 +727,7 @@ MFlabels = MFdens %>%
 
 ## try some different text label positions here
 ## to avoid text-point overlap
-MFlabels = MFdens %>% 
+MFlabels = MFdens %>%
   full_join(MFlevels,by = character()) %>%
   mutate(diffs = abs(density - level)) %>%
   group_by(prob) %>%
@@ -745,8 +749,9 @@ preMFcolored  =
   scale_y_continuous(limits = c(15,50)) +
   geom_text(data = dat2fixed, 
             aes(x=MALE_AGE_AT_MID,
-                y= FEMALE_AGE_AT_MID),x=18, y=48, 
-            label = sprintf('N=%s', sum(dat2fixed$direction=='M->F')), size = 6)+
+                y= FEMALE_AGE_AT_MID),
+            x=19, y=47, 
+            label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='M->F')), size = 6)+
   geom_contour(data = MFdens,
                aes(x=x,y=y, z=density, col = ..level..),
                breaks = MFlevels$level) +
@@ -783,15 +788,15 @@ FMlabels = FMdens %>%
 
 ## also try another way of labelling... 
 ## this one does NOT work that well!!
-FMlabels = FMdens %>% 
-  full_join(FMlevels,by = character()) %>%
-  mutate(diffs = abs(density - level)) %>%
-  group_by(prob) %>%
-  arrange(diffs) %>%
-  slice(30) %>% # probably need to toggle this line and the next to find a good one
-  filter(x == max(x)) %>%
-  ungroup() %>%
-  mutate(prob_label = sprintf('%.0f%%', prob * 100))
+# FMlabels = FMdens %>% 
+#   full_join(FMlevels,by = character()) %>%
+#   mutate(diffs = abs(density - level)) %>%
+#   group_by(prob) %>%
+#   arrange(diffs) %>%
+#   slice(30) %>% # probably need to toggle this line and the next to find a good one
+#   filter(x == max(x)) %>%
+#   ungroup() %>%
+#   mutate(prob_label = sprintf('%.0f%%', prob * 100))
 
 
 (
@@ -806,8 +811,9 @@ FMlabels = FMdens %>%
     scale_y_continuous(limits = c(15,50)) +
     geom_text(data = dat2fixed, 
               aes(x=MALE_AGE_AT_MID,
-                  y= FEMALE_AGE_AT_MID),x=18, y=48, 
-              label = sprintf('N=%s', sum(dat2fixed$direction=='F->M')), size = 6)+
+                  y= FEMALE_AGE_AT_MID),
+              x=19, y=47,  
+              label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='F->M')), size = 6)+
     geom_contour(data = FMdens,
                  aes(x=x,y=y, z=density, col = ..level..),
                  breaks = FMlevels$level) +
@@ -866,8 +872,10 @@ nonelabels = nonedens %>%
     scale_y_continuous(limits = c(15,50)) +
     geom_text(data = dat2fixed, 
               aes(x=MALE_AGE_AT_MID,
-                  y= FEMALE_AGE_AT_MID),x=18, y=48, 
-              label = sprintf('N=%s', sum(dat2fixed$direction=='none')), size = 6)+
+                  y= FEMALE_AGE_AT_MID),
+              x=19, y=47, 
+              label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='none')), 
+              size = 6)+
     geom_contour(data = nonedens,
                  aes(x=x,y=y, z=density, col = ..level..),
                  breaks = nonelevels$level) +
@@ -876,7 +884,7 @@ nonelabels = nonedens %>%
               size = 4) +
     #scale_color_gradientn(colors = pal)+
     scale_color_gradient(low = 'gray60', high = 'gray10')+
-    labs(x='male age', y = 'female age', title = 'No event/insufficient evidence') +
+    labs(x='male age', y = 'female age', title = 'None/unknown') +
     theme_bw(base_size = 14)+
     theme(legend.position = 'none',
           plot.title = element_text(hjust = 0.5,

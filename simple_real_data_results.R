@@ -14,6 +14,7 @@
 
 library(tidyverse)
 library(bayestestR)
+library(xtable)
 setwd('~/Documents/Research/HIV_transmission_flow/')
 
 # 1. proportions of each type --------
@@ -33,6 +34,21 @@ probs_summary$prob = names(probs)
 
 fixed_summary = data.frame(prob = names(fixed_probs),
                            avg = fixed_probs[1,] %>% as.numeric())
+
+## 06/29/2022: output a summary table as well
+comb_summary = cbind(probs_summary %>% select(prob, avg, CI95_lb, CI95_ub),
+                     fixed_summary %>% select(fixed_avg = avg)) %>%
+  mutate(model_N = round(avg * 526, digits = 0), 
+         fixed_N = fixed_avg * 526) %>%
+  mutate(model_avg_text = 
+           sprintf('%.1f%% (%.1f%%, %.1f%%)', 
+                   avg * 100, CI95_lb * 100, CI95_ub * 100),
+         fixed_avg_text = sprintf('%.1f%%', fixed_avg * 100)) %>%
+  select(prob, model_avg_text, model_N,
+         fixed_avg_text, fixed_N)
+
+print(xtable(comb_summary[c(2,3,1),]), 
+      include.rownames = FALSE)
 
 
 text_info = data.frame(x=names(probs),
