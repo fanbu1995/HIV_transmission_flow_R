@@ -121,7 +121,7 @@ ggplot(males, aes(x=sourceAge)) +
             size = 6)+
   scale_x_continuous(limits = xlims)+
   labs(x='male source age', y='')+
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 16)
 
 
 ## female source age
@@ -144,7 +144,7 @@ ggplot(females, aes(x=sourceAge)) +
                             hdi50femaleFixed$CI_low, hdi50femaleFixed$CI_high),
             size = 6)+
   labs(x='female source age', y='')+
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 16)
 
 ## 3.b. source/recipient age distribution for specific age group----
 
@@ -185,16 +185,16 @@ ggplot(source.males, aes(x=sourceAge)) +
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
-  labs(x='male source age for young women (15-25)', y='')+
-  theme_bw(base_size = 14)
+  labs(x='male source age for women 15-24', y='')+
+  theme_bw(base_size = 16)
 
 ## male recipient age
 hdi50male = hdi(rec.males$sourceAge, ci=0.5)
 hdi50male.fixed = hdi(rec.males.fixed$sourceAge, ci=0.5)
 ggplot(rec.males, aes(x=sourceAge)) +
   geom_density(aes(group=iter), 
-               color = alpha(wes_palette("Moonrise3")[2],0.2))+
-  stat_density(bw=1.8,color = wes_palette("GrandBudapest1")[2], 
+               color = alpha(wes_palette("Cavalcanti1")[4],0.2))+
+  stat_density(bw=1.8,color = wes_palette("Darjeeling1")[2], 
                geom='line', position='identity', size = 1.5)+
   stat_density(data=rec.males.fixed, aes(x=sourceAge), 
                bw=1.8, color='grey30', geom='line', linetype = 2,
@@ -202,14 +202,14 @@ ggplot(rec.males, aes(x=sourceAge)) +
   geom_text(x=40, y = 0.10,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50male$CI_low, hdi50male$CI_high),
-            size = 6, color = wes_palette("GrandBudapest1")[2])+
+            size = 6, color = wes_palette("Darjeeling1")[2])+
   geom_text(x=40, y = 0.092,
             label = sprintf('50%% HDI:[%.1f, %.1f]', 
                             hdi50male.fixed$CI_low, hdi50male.fixed$CI_high),
             size = 6)+
   scale_y_continuous(limits = ylims)+
   scale_x_continuous(limits = xlims)+
-  labs(x='male recipient age from young women (15-25)', y='')+
+  labs(x='male recipient age from women 15-24', y='')+
   theme_bw(base_size = 14)
   
   

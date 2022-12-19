@@ -496,6 +496,9 @@ ggarrange(ggarrange(preMFcolored,
 ## (June 11 updated version)
 ## (June 20 updates again)
 
+## (Dec 10 updated again!!)
+## show N= (effective number of data points used)
+
 # 6.1 try the full model ones (only MF and FM directions) for proof of concept
 # below code is copied over from "Density_2d_CIs.R" file
 
@@ -562,8 +565,10 @@ allMFcolored_contours =
   geom_text(data = dat2, 
             aes(x=MALE_AGE_AT_MID,
                 y= FEMALE_AGE_AT_MID),
-            x=19, y=47,  
-            label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
+            x=21, y=47,  
+            label = sprintf('Full analysis:\neff. N = %s', 
+                            round(sum(dat2$freq_MF))),  # 12/10/22: changed to show effective N for each type!
+            size = 6)+
   new_scale("color") +
   geom_contour(data = MFdens,
                aes(x=x,y=y, z=density, col = ..level..),
@@ -623,8 +628,9 @@ allFMcolored_contours =
   scale_color_gradient(low = 'white', high=wes_palette("GrandBudapest1")[2])+
   geom_text(data = dat2, aes(x=MALE_AGE_AT_MID,
                              y= FEMALE_AGE_AT_MID), 
-            x=19, y=47,  
-            label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
+            x=21, y=47,  
+            label = sprintf('Full analysis:\neff. N = %s', 
+                            round(sum(dat2$freq_FM))), size = 6)+
   new_scale("color") +
   geom_contour(data = FMdens,
                aes(x=x,y=y, z=density, col = ..level..),
@@ -686,8 +692,9 @@ nonelabels = nonedens %>%
     scale_color_gradient(low = 'white', high='black')+
     geom_text(data = dat2, aes(x=MALE_AGE_AT_MID,
                                y= FEMALE_AGE_AT_MID), 
-              x=19, y=47, 
-              label = sprintf('Model:\nN=%s', nrow(dat2)), size = 6)+
+              x=21, y=47, 
+              label = sprintf('Full analysis:\neff. N = %s', 
+                              round(sum(dat2$freq_0))), size = 6)+
     new_scale("color") +
     geom_contour(data = nonedens,
                  aes(x=x,y=y, z=density, col = ..level..),
@@ -750,8 +757,8 @@ preMFcolored  =
   geom_text(data = dat2fixed, 
             aes(x=MALE_AGE_AT_MID,
                 y= FEMALE_AGE_AT_MID),
-            x=19, y=47, 
-            label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='M->F')), size = 6)+
+            x=19.5, y=45, 
+            label = sprintf('subset\nanalysis:\nN = %s', 188), size = 6)+
   geom_contour(data = MFdens,
                aes(x=x,y=y, z=density, col = ..level..),
                breaks = MFlevels$level) +
@@ -812,8 +819,8 @@ FMlabels = FMdens %>%
     geom_text(data = dat2fixed, 
               aes(x=MALE_AGE_AT_MID,
                   y= FEMALE_AGE_AT_MID),
-              x=19, y=47,  
-              label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='F->M')), size = 6)+
+              x=19.5, y=45, 
+              label = sprintf('subset\nanalysis:\nN = %s', 155), size = 6)+
     geom_contour(data = FMdens,
                  aes(x=x,y=y, z=density, col = ..level..),
                  breaks = FMlevels$level) +
@@ -873,8 +880,8 @@ nonelabels = nonedens %>%
     geom_text(data = dat2fixed, 
               aes(x=MALE_AGE_AT_MID,
                   y= FEMALE_AGE_AT_MID),
-              x=19, y=47, 
-              label = sprintf('Fixed:\nN=%s', sum(dat2fixed$direction=='none')), 
+              x=19.5, y=45, 
+              label = sprintf('subset\nanalysis:\nN = %s', 183), 
               size = 6)+
     geom_contour(data = nonedens,
                  aes(x=x,y=y, z=density, col = ..level..),
@@ -914,4 +921,6 @@ ggarrange(ggarrange(preMFcolored,
           nrow = 2,
           heights = c(3.2,3),
           labels = c('A','B'))
+
+# saved as 13inch by 9inch pdf file...
 

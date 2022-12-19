@@ -173,11 +173,17 @@ pdf('joint_sim_plots_diff_Ns_median_update.pdf',
 pdf('joint_sim_plots_diff_Ns_median_update2.pdf', 
     height = 6.7, width = 10)
 
+# 12/08/2022: re-make plots with new facet titles and annotation terms...
+pdf('joint_sim_plots_diff_Ns_median_update3.pdf', 
+    height = 6.7, width = 10)
+
 
 ## 1. younger vs. older weights
 dummy = data.frame(scenario = rep(1:2, each = 2), yinter = c(0.62, 0.33, 0.33, 0.62))
-sce.labs = c('Scenario 1: same age transmission',
-             'Scenario 2: discordant age transmission')
+# sce.labs = c('Scenario 1: same age transmission',
+#              'Scenario 2: discordant age transmission')
+sce.labs = c('Simulation scenario: SAME AGE',
+             'Simulation scenario: DISCORDANT AGE')
 names(sce.labs) = c('1','2')
 
 ylims = c(0, 1)
@@ -194,7 +200,7 @@ ggplot(dat_weight) +
                                  "age difference \n>5 years"))+
   labs(x='sample size N\n(number of likely transmission pairs)', 
        y='estimated source proportions\n(posterior medians in 100 replicates)', 
-       fill='sources of\ninfection in\nyoung women\n') +
+       fill='sources of\ninfections\nin adolescent\nand young \nwomen\n') +
   theme_bw(base_size = 14) +
   facet_grid(~scenario, 
              labeller = labeller(scenario = sce.labs))
@@ -203,8 +209,10 @@ ggplot(dat_weight) +
 
 ## 2. MF vs. FM proportions 
 dummy = data.frame(scenario = rep(1:2, each = 2), yinter = c(0.5, 0.5, 0.6, 0.4))
-sce.labs = c('Scenario 1: MF 50-50',
-             'Scenario 2: MF 60-40')
+# sce.labs = c('Scenario 1: MF 50-50',
+#              'Scenario 2: MF 60-40')
+sce.labs = c('Simulation scenario: MF 50-50',
+             'Simulation scenario: MF 60-40')
 names(sce.labs) = c('1','2')
 
 ylims = c(0.3, 0.7)
