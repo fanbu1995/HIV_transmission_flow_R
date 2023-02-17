@@ -3,7 +3,11 @@
 
 library(tidyverse)
 
+## old Macbook path
 setwd('~/Documents/Research_and_References/HIV_transmission_flow/')
+
+## new Macbook path
+setwd("/Users/fan/Documents/Research/HIV_transmission_flow")
 
 ## read cross rates processed using updated data
 cross_rates = readRDS('cross_samp_rates_new.rds')
@@ -105,11 +109,17 @@ get_age_bin <- function(x, breaks = seq(15,50,by=1)){
 # a function to plot the lines
 # 09/20/2021 update: fix the y-axis limits for better comparison
 # 01/24/2021 update: add title for better differentiation
+
+# 02/17/2023 updates for manuscript----
+# (1) larger text 
+# (2) larger, more readable legend text/labels
+# (3) add a "stacked" to showcase marginal source distribution
 plot_source_freq <- function(Z, recipient = 'F',
                              age_breaks = seq(15,50,by=1), 
                              normalize = TRUE,
                              ylimits = c(0,0.1),
-                             analysisType = 'flexible'){
+                             analysisType = 'flexible',
+                             line_position = 'identity'){
   # group age first
   if(max(age_breaks) != 50){
     age_breaks = c(age_breaks, 50)
@@ -125,8 +135,9 @@ plot_source_freq <- function(Z, recipient = 'F',
              density=mean_dens)
     
     xlab = 'Male source age'
-    colorlab = 'Female Age'
-    tit = sprintf('M->F transmissions, %s types', analysisType)
+    colorlab = 'Female age: '
+    #tit = sprintf('M->F transmissions, %s types', analysisType)
+    tit = sprintf('M-->F transmissions')
   }else{
     # take the mean density within each recipient age group
     Z = Z %>% group_by(MAge_group, FAge) %>% 
@@ -135,8 +146,9 @@ plot_source_freq <- function(Z, recipient = 'F',
              density=mean_dens)
     
     xlab = 'Female source age'
-    colorlab = 'Male Age'
-    tit = sprintf('F->M transmissions, %s types', analysisType)
+    colorlab = 'Male age: '
+    #tit = sprintf('F->M transmissions, %s types', analysisType)
+    tit = sprintf('F-->M transmissions')
   }
   
   if(normalize){
@@ -149,19 +161,20 @@ plot_source_freq <- function(Z, recipient = 'F',
   
   print(
     ggplot(Z, aes(x=source_age, y=density)) +
-      geom_line(aes(color = rec_group)) +
+      geom_line(aes(color = rec_group), 
+                position = line_position) +
       labs(y='Transmission frequency', x=xlab, 
            color=colorlab, title = tit) +
       scale_y_continuous(limits = ylimits) +
       #ggthemes::scale_color_tableau('Classic Cyclic')+
       scale_color_manual(values = as.vector(pals::ocean.phase(length(age_breaks))))+
-      theme_bw(base_size = 14) +
+      theme_bw(base_size = 16) +
       theme(legend.position = 'bottom', 
-            legend.title = element_text(size=8),
-            legend.text = element_text(size=6),
-            legend.key.width = unit(0.3, 'cm'),
+            legend.title = element_text(size=14),
+            legend.text = element_text(size=12),
+            legend.key.width = unit(0.5, 'cm'),
             legend.key.height = unit(0.1,'cm')) +
-      guides(color = guide_legend(nrow=(length(age_breaks)-2) %/% 12 + 1,
+      guides(color = guide_legend(nrow=(length(age_breaks)-2) %/% 6 + 1,
                                   byrow=TRUE))
   )
   
@@ -197,7 +210,13 @@ dev.off()
 
 # 2. flexible labels
 at = 'flexible'
-pdf('source_freq_specTreat_Jan2022_titled.pdf',
+ylims = c(0,0.15)
+ag_br = seq(15, 50, by = 3)
+
+# pdf('source_freq_specTreat_Jan2022_titled.pdf',
+#     height=5, width=7)
+
+pdf('source_freq_specTreat_Jan2022_titled_updated.pdf',
     height=5, width=7)
 
 plot_source_freq(Z_MF_adj, recipient = 'F', 
@@ -242,6 +261,39 @@ Z = plot_source_freq(Z_FM_mean_adj, recipient = 'M',
 
 dev.off()
 
+## 02/17/2023: add stacked plot to show marginal source distributions
+
+ylims = c(0, 0.1)
+
+pdf('source_freq_specTreat_Jan2022_stacked.pdf',
+    height=5, width=7)
+
+plot_source_freq(Z_MF_adj, recipient = 'F', 
+                 normalize = FALSE,
+                 age_breaks = ag_br, ylimits = ylims,
+                 analysisType = at,
+                 line_position = 'stack')
+plot_source_freq(Z_FM_adj, recipient = 'M', 
+                 normalize = FALSE,
+                 age_breaks = ag_br, ylimits = ylims,
+                 analysisType = at,
+                 line_position = 'stack')
+plot_source_freq(Z_MF_mean_adj, recipient = 'F',
+                 normalize = FALSE,
+                 age_breaks = ag_br, ylimits = ylims,
+                 analysisType = at,
+                 line_position = 'stack')
+# plot_source_freq(Z_FM_mean_adj, recipient = 'M',
+#                  age_breaks = ag_br, ylimits = ylims)
+
+## a little bit more smoothing on the last plot
+Z = plot_source_freq(Z_FM_mean_adj, recipient = 'M',
+                     normalize = FALSE,
+                     age_breaks = ag_br, ylimits = ylims,
+                     analysisType = at,
+                     line_position = 'stack')
+
+dev.off()
 
 
 #####
